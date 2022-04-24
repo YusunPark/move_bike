@@ -1,3 +1,4 @@
+from asyncio.log import logger
 import pymysql
 import requests
 import json
@@ -53,32 +54,40 @@ def call_weather() -> Dict[str, Any]:
     dict_['feels_like'] = weather_json['main']['feels_like']        # 체감온도
     dict_['wind_speed'] = weather_json['wind']['speed']             # 풍속
 
-    print(dict_)
-
     return dict_
 
 
 def main() -> None:
     data = call_weather()
 
-    conn = pymysql.connect(
-        host='158.247.209.211', 
-        port=3306,
-        user='root',
-        passwd='insight2022',
-        db='insight',
-        charset='utf8',
-        autocommit=False
-    )
+    
+    try:
+        conn = pymysql.connect(
+            host='158.247.209.211', 
+            port=3306,
+            user='root',
+            passwd='insight2022',
+            db='insight',
+            charset='utf8',
+            autocommit=False
+        )
 
-    cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
+        cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
 
-    # for value in data:
-    cursor.execute(QUERY, data)
-    conn.commit()
-    cursor.close()
-    conn.close()
+        # for value in data:
+        cursor.execute(QUERY, data)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
 
+    except pymysql.err.OperationalError:
+        print("[OperationalError] : 데이터소스 이름 없음, 트랜젝션 실행불가, 메모리 할당 에러, 연결 끊김 등 에러")
+    except pymysql.err.IntegrityError:
+        print("[IntegrityError] : 커서 유효하지 않음, 트랜젝션 안맞음 등 에러")
+    except pymysql.err.InterfaceError:
+        print("[InterfaceError] : 데이터베이스 자체 말고 인터페이스 문제, eg.) interface 할 때 컬럼 개수와 value 개수가 안맞음.")
 
 if __name__ == '__main__':
     main()
+
