@@ -29,3 +29,25 @@ CREATE TABLE bike (
     date DATETIME,
     foreign key (station_id) references distance(station_id) on update cascade on delete restrict
 );
+
+CREATE TABLE predict_all (
+    station_id VARCHAR(50),
+    station_lat double,
+    station_lon double,
+    now int,
+    thirty int,
+    one int,
+    two int,
+    time DATETIME
+);
+
+CREATE TABLE now_all (
+    station_id VARCHAR(50),
+    station_lat double,
+    station_lon double,
+    now int,
+    thirty int,
+    one int,
+    two int,
+    time DATETIME
+);
